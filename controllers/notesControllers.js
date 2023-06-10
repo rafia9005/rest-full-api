@@ -1,3 +1,4 @@
+const fs = require("fs");
 module.exports.post = (req, res) => {
   const { title, author } = req.body;
   fs.readFile(dataFilePath, "utf8", (err, data) => {

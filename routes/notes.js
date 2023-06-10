@@ -7,12 +7,51 @@ const dataFilePath = path.join(__dirname, "data/notes.json");
 
 router.use(express.json());
 
-var notesControllers = require('../controllers/notesControllers')
+router.post("/", );
 
-router.post("/", notesControllers.post);
+router.get("/", function (req, res) {
+  fs.readFile(dataFilePath, "utf8", (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("An error occurred while reading the file.");
+    }
 
-router.get("/", notesControllers.get);
+    const posts = JSON.parse(data);
 
-router.delete('/:id', notesControllers.delete);
+    res.json({
+      success: true,
+      data: posts,
+    });
+  });
+});
+
+router.delete('/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+  
+    fs.readFile(dataFilePath, 'utf8', (err, data) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send('An error occurred while reading the file.');
+      }
+  
+      let posts = JSON.parse(data);
+      const postIndex = posts.findIndex(post => post.id === id);
+  
+      if (postIndex === -1) {
+        return res.status(404).json({ message: 'Data not found.' });
+      }
+  
+      posts.splice(postIndex, 1);
+  
+      fs.writeFile(dataFilePath, JSON.stringify(posts), (err) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send('An error occurred while saving the data.');
+        }
+  
+        res.status(200).json({ message: 'Data berhasil dihapus.' });
+      });
+    });
+  });
 
 module.exports = router;
